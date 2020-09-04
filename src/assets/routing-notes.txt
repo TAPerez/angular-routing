@@ -1,0 +1,145 @@
+Routing
+    1. All the paths/routes or navigation requirements in Angular are handled by Angular router package
+	2. We navigate from one component view to other using the routes
+	3. we can configure various types of routes 
+        - default
+        - child
+        - wild card routes
+        - Query params
+        - URL segments
+        - Lazy loading
+	4. we create a routes array and whenever user requests a route
+		- it will search in the routes array
+	5. import { Routes, RouterModule } from '@angular/router';
+	6. Router is singleton - which means there is only one instance of the application
+
+Routing Strategies
+    1. extremely important
+    2. angular has 2 types of routing strategies
+        - PathLocationStrategy (default)
+            > /home, /dashboard, /search?keyword=k1, /product, /product/10, /product/10/details, /product?search=param
+        - HashLocationStrategy (will see # in url)
+            > #/home, #/dashboard, #/search?keyword=k1, #/product, #/product/10
+    3. We can create our own strategy if there is no strategy. By default, PathLocationStrategy
+    4. We need to add this in Providers of our module
+        - app.module.ts
+            providers: [
+                { provide: LocationStrategy, useClass: HashLocationStrategy }
+            ],
+
+Base HREF
+    1. all Angular applicatin should have base href directive in index.html
+	2. The default path of the href is '/' which means its pointing to the root of the server 
+	3. Its extremely important
+		- if we configure the base href in wrong, then application will not work
+	4. Syntax
+        - <base href= "/">
+	5. ng build 
+        - it always assumes that you are deploying to the root folder
+        - how to configure 
+            > ng build --base-href="/search"
+            > after build -> you can verify in index.html -> base href="/search"
+	        > http://google.com/ -> root folder , http://google.com/Search/ --> base href = '/search'
+
+Routing Module 
+    1. Routing Module is a placeholder for configuring all routes and navigations in one module
+        - best practice is to have all routes configured in one place
+        - easy to maintain and debug
+    2. can generate the app routing module using CLI 
+        - ng generate module app-routing --flat -module=app
+        - is generated automatically if you repsond "y" when cli asks if you want routing for your project
+    3. make sure these steps are in the project for router to work
+        - We need to import the modules from the package
+		    > import { Routes, RouterModule } from '@angular/router'; -> available in app-routing.module.ts
+	    -  We need to configure the route path in the form of array 
+		    > const routes: Routes = []; -> in app-routing.module.ts
+	    -  Then we need to define our module
+		    >  @NgModule({
+  		        imports: [RouterModule.forRoot(routes)],
+ 		            exports: [RouterModule]
+		        })
+	    -  We need to export the module 
+		    > export class AppRoutingModule { } -> in app-routing.module.ts
+	    - import the module in app.module.ts
+		    > import { AppRoutingModule } from './app-routing.module';
+		        imports: [
+    	    	    BrowserModule,
+    		        AppRoutingModule
+  		        ],
+
+Router Outlet
+    1. Every angular application must have one router outlet
+	2. We can have more than one outlet in our application
+	3. Router outlet let us define where output should be displayed
+	4. Router outlet can be specified at app module or in individual modules
+
+Configure Routes
+    1. we can configure routes to redirect to various paths 
+        - path
+        - component
+        - redirectTo
+        - children
+
+Parameterized Routes
+    1. we can configure and send parameters to our routes
+    2. need to configure the route and mention that the value is dynamic
+        - { path:'product/:id', component:'ComponentName' }
+    3. we can read the values in the component class and process the parameters
+
+Query Params
+    1. search.php?tag=usa
+    2. twitter.com/searcg?trending=108&country=usa 
+    3. GET HTTP method calls
+    4. visible to end users
+        - make sure NO sensitive data is caotured via query parameters
+        - no login, no passwords, etc. they should be POST calls
+
+Redirecting Routes
+    1. when we want to a route to be redirected to another route - we will implement the redirectTo in our array
+	    - {path: '', redirectTo: 'home', pathMatch:'full'}
+	    - the empty path indicates that its the default route of the application
+	    - the empty path also requeires us to mention that pathMatch should be 'full'
+    2. Syntax:
+        - {path:'', redirectTo:'productview',pathMatch:'full'}
+
+Wildcard Routes
+    1. wild card intercepts any invalid URLs in our application
+	2. When NO matching routes are found in the routes array, that router does not know where to go and hence results in console are errors
+	3. wild card routes are defined in routes array is = {path:'**'}
+	4. Usaually a PageNotFound component is a good example
+	5. we can have more than one wild card routes but not suggestable. only one will be best option
+
+Child Routes
+    1. we can configure any number of child routes to parent route
+	2. the syntax will be same as defining the routes array
+	3. using logical grouping (products -> product-edit, product-view, product-update, product-delete)
+    4. Syntax
+        - app-routing.module.ts
+            const routes: Routes = [
+                {path:'products',
+                    children:[
+                        {path:'productedit',component:ProductEditComponent},
+                        {path:'productview',component:ProductViewComponent}
+                ]},
+
+Lazy Loading 
+    1. By Default, NgModules are eagerly loaded
+        - which means that as soon as the app loads, so do all the NgModules, whether or not they are immediately necessary
+	2. For large apps with lots of routes, consider lazy loading 
+        - a design pattern that loads NgModules are needed
+	3. Lazy loading helps keep initail bundle sizes smaller, which in turn helps decrease load times
+	4. New with Angular8, loadChildren expects a function that uses the dynamic import syntax to import your lazy loaded module only when it's needed
+	5. it's easy to have features loaded only when the user navigates to their routes for the first time
+	6. How to implement lazy loading
+		- create a feature module , child routes
+		- loadChildren: config in the app routing
+    7. Syntax 
+        - ng generate module <orders> --route <orders> --module app.module
+	8. It will generate a lazy loaded feature module	, you can verify in console (F12), network tab
+	9. when we navigate to orders module then only orders module will be loaded (lazy loaded feature)
+	10. you can add your own routes in OrdersRoutingModule (routes array) - orders-routing.module.ts
+        - { path: 'orders', loadChildren: () => import('./orders/orders.module').then(m => m.OrdersModule) }
+
+
+
+
