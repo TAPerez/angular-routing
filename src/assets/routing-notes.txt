@@ -140,6 +140,41 @@ Lazy Loading
 	10. you can add your own routes in OrdersRoutingModule (routes array) - orders-routing.module.ts
         - { path: 'orders', loadChildren: () => import('./orders/orders.module').then(m => m.OrdersModule) }
 
+Route Guards
+    1. Route guards allows us to restrict users to NOT access certain routes or paths
+	    - if the user is not logged in then the user should not see/orders route
+		    > /home, /profile, /todos, /tasks, /card
+	2. whenever implement a route gauard - it will give Boolean value
+	3. Based on this boolean value -> angular router will decide if user should accessing the route
+	4. ng generage gaurd <gaurdname>
+	5. Inject the gaurd in our module under providers
+	6. there are various types of route gaurds available
+		- CanActivate -> check to see if a use can visit a route 
+		- CanActivateChild -> Checks to see if a user can visit child routes
+		- CanDeactivae -> Checks to see if a user can exit a route
+		- Reslove - Performs route data retrieval before route activated
+		- CanLoad - Checks to see if a user can route to a module that lazy loaded
+	7. The route gaurd resolves to true or false based on custom logic and functionality
+    8. while implementing it will ask 4 interfaces that we need to implement
+	9. Syntax 
+        - admin-guard.guard.ts
+            import { Injectable } from '@angular/core';
+            import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
+            import { Observable } from 'rxjs';
+            @Injectable({
+                providedIn: 'root'
+            })
+            export class AdminGuardGuard implements CanActivate {
+                canActivate(
+                    next: ActivatedRouteSnapshot,
+                    state: RouterStateSnapshot): boolean{
+                    //TODO: write logic for authentication and authorization code here
+                    //TODO: call user service to check user has entered valid credentials or not
+                        return false //You can change to 'true' if  you want access admin module
+                    }
+            }
 
-
-
+        - app-routing.module.ts
+            import{AdminGuardGuard} from './admin-guard.guard';
+            const routes: Routes = [
+                {path:'Admin',component:AdminComponent,canActivate:[AdminGuardGuard]}
